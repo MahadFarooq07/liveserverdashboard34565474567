@@ -1,0 +1,49 @@
+name: Daily activity
+
+on:
+  schedule:
+    # Run away from the top of the hour to reduce GitHub Actions queue delays.
+    - cron: "37 21 * * *"
+      timezone: "America/Toronto"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-activity-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  record-activity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add today's activity entry
+        env:
+          ACTIVITY_TIMEZONE: America/Toronto
+        run: ./scripts/update-activity.sh
+
+      - name: Commit and push the entry
+        env:
+          COMMIT_NAME: ${{ github.repository_owner }}
+          COMMIT_EMAIL: ${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com
+        run: |
+          if git diff --quiet -- ACTIVITY.md; then
+            echo "Today's entry already exists; nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "$COMMIT_NAME"
+          git config user.email "$COMMIT_EMAIL"
+          git add ACTIVITY.md
+          git commit -m "chore: record daily activity for $(TZ=America/Toronto date +%F)"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+

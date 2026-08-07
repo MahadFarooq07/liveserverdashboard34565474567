@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Check out the default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -46,4 +46,3 @@ jobs:
           git commit -m "chore: record daily activity for $(TZ=America/Toronto date +%F)"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
-

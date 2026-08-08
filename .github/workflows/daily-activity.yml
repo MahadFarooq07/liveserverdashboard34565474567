@@ -2,8 +2,21 @@ name: Daily activity
 
 on:
   schedule:
-    # Run away from the top of the hour to reduce GitHub Actions queue delays.
-    - cron: "37 21 * * *"
+    # Seven irregular opportunities are evaluated each day. The script picks
+    # a date-seeded subset, so 1-5 of these runs produce commits.
+    - cron: "11 7 * * *"
+      timezone: "America/Toronto"
+    - cron: "37 9 * * *"
+      timezone: "America/Toronto"
+    - cron: "23 12 * * *"
+      timezone: "America/Toronto"
+    - cron: "59 14 * * *"
+      timezone: "America/Toronto"
+    - cron: "41 17 * * *"
+      timezone: "America/Toronto"
+    - cron: "17 20 * * *"
+      timezone: "America/Toronto"
+    - cron: "43 22 * * *"
       timezone: "America/Toronto"
   workflow_dispatch:
 
@@ -27,6 +40,9 @@ jobs:
 
       - name: Add today's activity entry
         env:
+          ACTIVITY_EVENT: ${{ github.event_name }}
+          ACTIVITY_RUN_ID: ${{ github.run_id }}
+          ACTIVITY_SLOT: ${{ github.event.schedule }}
           ACTIVITY_TIMEZONE: America/Toronto
         run: ./scripts/update-activity.sh
 
@@ -36,13 +52,13 @@ jobs:
           COMMIT_EMAIL: ${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com
         run: |
           if git diff --quiet -- ACTIVITY.md; then
-            echo "Today's entry already exists; nothing to commit."
+            echo "This time slot was not selected or was already recorded."
             exit 0
           fi
 
           git config user.name "$COMMIT_NAME"
           git config user.email "$COMMIT_EMAIL"
           git add ACTIVITY.md
-          git commit -m "chore: record daily activity for $(TZ=America/Toronto date +%F)"
+          git commit -m "chore: record activity at $(TZ=America/Toronto date '+%Y-%m-%d %H:%M %Z')"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"

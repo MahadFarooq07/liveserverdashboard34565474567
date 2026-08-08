@@ -7,16 +7,21 @@ GitHub's cloud instead of relying on a laptop and local cron.
 
 ## What it does
 
-- Runs every day at **9:37 PM in America/Toronto**.
-- Adds at most one dated row per local calendar day.
+- Produces **1-5 commits every day** in **America/Toronto**.
+- Selects a different subset of seven irregular time slots for each date.
+- Produces 4-5 commits on roughly one quarter of days.
 - Commits directly to the default branch using the repository owner's
   GitHub-provided no-reply address.
-- Can be tested on demand from **Actions > Daily activity > Run workflow**.
+- Creates an additional commit when run on demand from
+  **Actions > Daily activity > Run workflow**.
 - Uses the built-in `GITHUB_TOKEN`; no personal access token or repository
   secret is required.
 
-The unusual minute avoids the heavier GitHub Actions load that often occurs at
-the start of an hour. Scheduled jobs can still be delayed occasionally.
+Cron schedules themselves cannot choose a new random clock time every day, so
+the workflow uses seven irregular opportunities and a date-seeded hash to pick
+which ones commit. The result changes each day but remains reproducible and
+guarantees at least one daily commit. Scheduled jobs can still be delayed
+occasionally by GitHub Actions.
 
 ## Why the contribution is attributed to the owner
 
@@ -33,8 +38,8 @@ who should receive contribution credit.
 ## Security and reliability
 
 The workflow grants only `contents: write`, the permission needed to push the
-daily entry. The update script is idempotent, so retrying the workflow on the
-same Toronto date does not create duplicate commits.
+daily entries. The update script is idempotent per scheduled slot and workflow
+run, so retrying a job does not create a duplicate commit.
 
 GitHub may disable schedules in a public repository after 60 days without any
 repository activity. Successful daily commits keep this repository active, but
@@ -56,4 +61,3 @@ Edit the `cron` and `timezone` values in
 
 Disable **Daily activity** in the repository's Actions tab, or remove the
 `schedule` trigger from `.github/workflows/daily-activity.yml`.
-

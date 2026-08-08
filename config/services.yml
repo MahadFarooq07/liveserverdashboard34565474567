@@ -1,0 +1,21 @@
+environment: production-demo
+region: ca-central-1
+
+services:
+  - name: api-gateway
+    replicas: 8
+    health_endpoint: /internal/ready
+    latency_slo_ms: 120
+  - name: event-stream
+    replicas: 6
+    health_endpoint: /internal/health
+    latency_slo_ms: 180
+  - name: session-cache
+    replicas: 4
+    health_endpoint: /healthz
+    latency_slo_ms: 35
+  - name: worker-pool
+    replicas: 8
+    health_endpoint: /readyz
+    latency_slo_ms: 240
+

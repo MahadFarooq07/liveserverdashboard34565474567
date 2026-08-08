@@ -1,63 +1,42 @@
-# Daily Commit Bot
+# Live Server Operations Dashboard
 
-A small, transparent GitHub Actions bot that records one entry in
-[`ACTIVITY.md`](ACTIVITY.md) every day. It is inspired by
-[theshteves/commit-bot](https://github.com/theshteves/commit-bot), but runs in
-GitHub's cloud instead of relying on a laptop and local cron.
+> **Production demo** — simulated infrastructure telemetry for a filmed scene.
+> No customer systems or production data are connected to this repository.
 
-## What it does
+## Environment
 
-- Produces **1-5 commits every day** in **America/Toronto**.
-- Selects a different subset of seven irregular time slots for each date.
-- Produces 4-5 commits on roughly one quarter of days.
-- Commits directly to the default branch using the repository owner's
-  GitHub-provided no-reply address.
-- Creates an additional commit when run on demand from
-  **Actions > Daily activity > Run workflow**.
-- Uses the built-in `GITHUB_TOKEN`; no personal access token or repository
-  secret is required.
+| Environment | Region | Release | Overall status |
+| --- | --- | --- | --- |
+| Production | `ca-central-1` | `2026.08.07-rc3` | **Operational** |
 
-Cron schedules themselves cannot choose a new random clock time every day, so
-the workflow uses seven irregular opportunities and a date-seeded hash to pick
-which ones commit. The result changes each day but remains reproducible and
-guarantees at least one daily commit. Scheduled jobs can still be delayed
-occasionally by GitHub Actions.
+## Fleet overview
 
-## Why the contribution is attributed to the owner
+| Active nodes | Requests/min | p95 latency | Error rate |
+| ---: | ---: | ---: | ---: |
+| 26 | 19,275 | 78ms | 0.03% |
 
-GitHub counts a commit on a profile when its author email belongs to that
-account, it is in a standalone repository, and it lands on the default branch
-(or `gh-pages`). The workflow builds the repository owner's ID-based no-reply
-address from GitHub's workflow context, so a personal email is not published.
+## Service health
 
-This setup is intended for a repository owned by a personal GitHub account. If
-you transfer it to an organization, change `COMMIT_NAME` and `COMMIT_EMAIL` in
-`.github/workflows/daily-activity.yml` to an email associated with the person
-who should receive contribution credit.
+| Service | Status | Replicas | Last probe |
+| --- | --- | ---: | --- |
+| API Gateway | Operational | 8/8 | 20:21 EDT |
+| Event Stream | Operational | 6/6 | 20:21 EDT |
+| Session Cache | Operational | 4/4 | 20:20 EDT |
+| Worker Pool | Operational | 8/8 | 20:20 EDT |
 
-## Security and reliability
+## Traffic by region
 
-The workflow grants only `contents: write`, the permission needed to push the
-daily entries. The update script is idempotent per scheduled slot and workflow
-run, so retrying a job does not create a duplicate commit.
+| Region | Share | p95 latency |
+| --- | ---: | ---: |
+| Canada Central | 54% | 71ms |
+| US East | 31% | 83ms |
+| Europe West | 15% | 96ms |
 
-GitHub may disable schedules in a public repository after 60 days without any
-repository activity. Successful daily commits keep this repository active, but
-if the workflow ever remains broken for that long, re-enable it from the
-Actions tab.
+## Operations
 
-## Test locally
+- [Status history](telemetry/STATUS_HISTORY.md)
+- [Service registry](config/services.yml)
+- [Incident runbook](docs/OPERATIONS.md)
 
-```bash
-./tests/test-update-activity.sh
-```
-
-## Change the schedule
-
-Edit the `cron` and `timezone` values in
-`.github/workflows/daily-activity.yml`. GitHub uses POSIX cron syntax.
-
-## Stop the bot
-
-Disable **Daily activity** in the repository's Actions tab, or remove the
-`schedule` trigger from `.github/workflows/daily-activity.yml`.
+Telemetry probes run in staggered windows and publish validated snapshots to
+the operations branch. Manual refreshes are available through the Actions tab.

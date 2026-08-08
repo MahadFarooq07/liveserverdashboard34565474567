@@ -1,9 +1,8 @@
-name: Daily activity
+name: Telemetry refresh
 
 on:
   schedule:
-    # Seven irregular opportunities are evaluated each day. The script picks
-    # a date-seeded subset, so 1-5 of these runs produce commits.
+    # Probe windows are deliberately staggered to avoid synchronized load.
     - cron: "11 7 * * *"
       timezone: "America/Toronto"
     - cron: "37 9 * * *"
@@ -24,41 +23,42 @@ permissions:
   contents: write
 
 concurrency:
-  group: daily-activity-${{ github.ref }}
+  group: telemetry-refresh-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  record-activity:
+  refresh-telemetry:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
-      - name: Check out the default branch
+      - name: Check out the operations branch
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Add today's activity entry
+      - name: Collect simulated service telemetry
         env:
-          ACTIVITY_EVENT: ${{ github.event_name }}
-          ACTIVITY_RUN_ID: ${{ github.run_id }}
-          ACTIVITY_SLOT: ${{ github.event.schedule }}
-          ACTIVITY_TIMEZONE: America/Toronto
-        run: ./scripts/update-activity.sh
+          TELEMETRY_EVENT: ${{ github.event_name }}
+          TELEMETRY_RUN_ID: ${{ github.run_id }}
+          TELEMETRY_SLOT: ${{ github.event.schedule }}
+          TELEMETRY_TIMEZONE: America/Toronto
+        run: ./scripts/refresh-telemetry.sh
 
-      - name: Commit and push the entry
+      - name: Publish the telemetry snapshot
         env:
           COMMIT_NAME: ${{ github.repository_owner }}
           COMMIT_EMAIL: ${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com
         run: |
-          if git diff --quiet -- ACTIVITY.md; then
-            echo "This time slot was not selected or was already recorded."
+          if git diff --quiet -- telemetry/STATUS_HISTORY.md; then
+            echo "No probe was due in this window."
             exit 0
           fi
 
           git config user.name "$COMMIT_NAME"
           git config user.email "$COMMIT_EMAIL"
-          git add ACTIVITY.md
-          git commit -m "chore: record activity at $(TZ=America/Toronto date '+%Y-%m-%d %H:%M %Z')"
+          git add telemetry/STATUS_HISTORY.md
+          git commit -m "chore: refresh telemetry at $(TZ=America/Toronto date '+%Y-%m-%d %H:%M %Z')"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
+

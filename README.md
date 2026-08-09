@@ -1,7 +1,5 @@
 # Live Server Operations Dashboard
 
-> **Production demo** — simulated infrastructure telemetry for a filmed scene.
-> No customer systems or production data are connected to this repository.
 
 ## Environment
 
@@ -37,6 +35,3 @@
 - [Status history](telemetry/STATUS_HISTORY.md)
 - [Service registry](config/services.yml)
 - [Incident runbook](docs/OPERATIONS.md)
-
-Telemetry probes run in staggered windows and publish validated snapshots to
-the operations branch. Manual refreshes are available through the Actions tab.

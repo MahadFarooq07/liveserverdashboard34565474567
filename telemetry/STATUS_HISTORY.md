@@ -35,3 +35,4 @@ Automated probe snapshots for the fictional dashboard environment.
 | 2026-08-17 | 2026-08-17 21:48:40 EDT | Operational | 25 | 20377 | 65ms | 0.06% | scheduled-6 |
 | 2026-08-17 | 2026-08-17 23:26:09 EDT | Operational | 32 | 20203 | 59ms | 0.08% | scheduled-7 |
 | 2026-08-18 | 2026-08-18 21:51:35 EDT | Operational | 27 | 14780 | 68ms | 0.05% | scheduled-6 |
+| 2026-08-19 | 2026-08-19 20:32:38 EDT | Operational | 31 | 19043 | 68ms | 0.08% | manual-batch-20260819203237-1 |

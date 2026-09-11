@@ -35,3 +35,5 @@
 - [Status history](telemetry/STATUS_HISTORY.md)
 - [Service registry](config/services.yml)
 - [Incident runbook](docs/OPERATIONS.md)
+
+Telemetry refresh runs across five to seven staggered probe windows each day.

@@ -42,16 +42,12 @@ if [[ "$telemetry_event" == "schedule" ]]; then
   fi
 
   daily_bucket="$(hash_value "$snapshot_date")"
-  if [[ "$daily_bucket" -lt 80 ]]; then
-    target_count=1
-  elif [[ "$daily_bucket" -lt 144 ]]; then
-    target_count=2
-  elif [[ "$daily_bucket" -lt 192 ]]; then
-    target_count=3
-  elif [[ "$daily_bucket" -lt 232 ]]; then
-    target_count=4
-  else
+  if [[ "$daily_bucket" -lt 86 ]]; then
     target_count=5
+  elif [[ "$daily_bucket" -lt 171 ]]; then
+    target_count=6
+  else
+    target_count=7
   fi
 
   selected_windows="$({
@@ -92,4 +88,3 @@ printf '| %s | %s | Operational | %s | %s | %sms | 0.0%s%% | %s |\n' \
   "$probe_id" >> "$telemetry_file"
 
 echo "Published telemetry probe $probe_id for $snapshot_date."
-

@@ -46,10 +46,10 @@ assert_snapshot_count() {
   fi
 }
 
-# Known dates exercise one-, four-, and five-probe sampling plans.
+# Known dates exercise five-, six-, and seven-probe sampling plans.
 run_scheduled_day "2099-01-01"
+run_scheduled_day "2099-01-02"
 run_scheduled_day "2099-01-04"
-run_scheduled_day "2099-01-09"
 
 # Replaying all windows must remain idempotent.
 run_scheduled_day "2099-01-01"
@@ -62,10 +62,9 @@ TELEMETRY_DATE="2099-12-31" TELEMETRY_TIMESTAMP="2099-12-31 manual EST" \
 TELEMETRY_EVENT="workflow_dispatch" TELEMETRY_RUN_ID="12345" \
   "$repo_root/scripts/refresh-telemetry.sh" >/dev/null
 
-assert_snapshot_count "2099-01-01" 1
-assert_snapshot_count "2099-01-04" 4
-assert_snapshot_count "2099-01-09" 5
+assert_snapshot_count "2099-01-01" 5
+assert_snapshot_count "2099-01-02" 6
+assert_snapshot_count "2099-01-04" 7
 assert_snapshot_count "2099-12-31" 1
 
 echo "refresh-telemetry.sh passed all tests."
-

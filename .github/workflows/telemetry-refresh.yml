@@ -2,7 +2,8 @@ name: Telemetry refresh
 
 on:
   schedule:
-    # Probe windows are deliberately staggered to avoid synchronized load.
+    # Five to seven probe windows are selected daily. Windows are deliberately
+    # staggered to avoid synchronized load.
     - cron: "11 7 * * *"
       timezone: "America/Toronto"
     - cron: "37 9 * * *"
@@ -61,4 +62,3 @@ jobs:
           git commit -m "chore: refresh telemetry at $(TZ=America/Toronto date '+%Y-%m-%d %H:%M %Z')"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
-
